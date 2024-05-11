@@ -13,20 +13,18 @@ export default function Timer({
   userId: string;
 }) {
   const supabase = newBrowserClient();
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-  const [totalSeconds, setTotalSeconds] = useState(duration);
-  const [isRunning, setIsRunning] = useState(false);
-  const [sessionId, setSessionId] = useState(id);
+  const [hours, setHours] = useState<number>(0);
+  const [minutes, setMinutes] = useState<number>(0);
+  const [seconds, setSeconds] = useState<number>(0);
+  const [totalSeconds, setTotalSeconds] = useState<number>(duration);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [sessionId, setSessionId] = useState<string | null>(id);
   //
 
   async function handleContinue() {
     setIsRunning(!isRunning);
-    console.log("in handle continue");
     if (!isRunning && !sessionId) {
       // isRunning false -> though it set to true above
-      console.log("timer started with no id");
       const { data, error } = await supabase
         .from("sessions")
         .insert({
@@ -37,27 +35,29 @@ export default function Timer({
 
       if (data) {
         setSessionId(data[0].id);
-        console.log("new session id" + data[0].id);
       }
+    }
+    if (isRunning) {
+      // session paused
+      const { data, error } = await supabase
+        .from("sessions")
+        .update({
+          duration: totalSeconds,
+        })
+        .eq("id", sessionId!);
     }
   }
 
   async function handleFinish() {
     setIsRunning(false);
-    if (totalSeconds > 0) {
-      console.log("in handle finish");
-      if (sessionId) {
-        // id is not null
-        const { error } = await supabase
-          .from("sessions")
-          .update({
-            duration: totalSeconds,
-            end_at: new Date().toISOString(),
-          })
-          .eq("id", sessionId);
-      } else {
-        alert("total seconds > 0 && id is null");
-      }
+    if (totalSeconds > 0 && sessionId) {
+      const { error } = await supabase
+        .from("sessions")
+        .update({
+          duration: totalSeconds,
+          end_at: new Date().toISOString(),
+        })
+        .eq("id", sessionId);
     }
     // Reset timer
     setTotalSeconds(0);
