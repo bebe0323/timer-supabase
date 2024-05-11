@@ -1,9 +1,8 @@
 import { newServerClient } from "@/utils/supabase/server";
-import LoginForm from "./LoginForm";
 import { redirect } from "next/navigation";
-import { Database } from "../lib/databse.types";
+import SignupForm from "./SignupForm";
 
-export default async function LoginPage() {
+export default async function SignupPage() {
   const supabase = newServerClient();
   const {
     data: { session },
@@ -16,7 +15,7 @@ export default async function LoginPage() {
 
   return (
     <div>
-      <LoginForm />
+      <SignupForm />
     </div>
-  );
+  )
 }

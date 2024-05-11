@@ -1,6 +1,6 @@
 "use client";
 import { type User } from "@supabase/supabase-js";
-import { navigate } from "@/app/libs/Navigate";
+import { navigate } from "@/app/lib/Navigate";
 
 export default function NavbarClient({ user }: { user: User | null }) {
   return (
@@ -26,6 +26,12 @@ export default function NavbarClient({ user }: { user: User | null }) {
       )}
       {user && (
         <div>
+          <button
+            onClick={() => navigate("statistics")}
+            className="text-sm  text-gray-500 hover:text-gray-700 transition mr-4"
+          >
+            Statistics
+          </button>
           <button
             onClick={() => navigate("account")}
             className="auth-button py-1 border border-slate-300 hover:bg-zinc-200"

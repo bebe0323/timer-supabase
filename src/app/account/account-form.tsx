@@ -11,6 +11,8 @@ export default function AccountForm({ user }: { user: User | null }) {
   const [website, setWebsite] = useState<string | null>(null);
   const [avatar_url, setAvatarUrl] = useState<string | null>(null);
 
+  // TODO: if user is null redirect to login
+
   const getProfile = useCallback(async () => {
     try {
       setLoading(true);
@@ -18,7 +20,7 @@ export default function AccountForm({ user }: { user: User | null }) {
       const { data, error, status } = await supabase
         .from("profiles")
         .select(`full_name, username, website, avatar_url`)
-        .eq("id", user?.id)
+        .eq("id", user!.id)
         .single();
 
       if (error && status !== 406) {
