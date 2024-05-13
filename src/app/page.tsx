@@ -2,7 +2,8 @@
 
 import Timer from "@/components/Timer";
 import { newServerClient } from "@/utils/supabase/server";
-import { Database } from "./lib/databse.types";
+import { Tables } from "./lib/databse.types";
+import RecentSessions from "@/components/RecentSessions";
 
 export default async function Home() {
   const supabase = newServerClient();
@@ -33,8 +34,7 @@ export default async function Home() {
     .gte("created_at", start)
     .lte("created_at", end);
 
-  let activeSession: Database["public"]["Tables"]["sessions"]["Row"] | null =
-    null;
+  let activeSession: Tables<"sessions"> | null = null;
   if (
     sessions &&
     sessions.length > 0 &&
@@ -44,7 +44,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex justify-center">
+    <div className="w-full flex flex-col items-center">
       {activeSession && (
         <Timer
           duration={activeSession.duration}
@@ -53,6 +53,7 @@ export default async function Home() {
         />
       )}
       {!activeSession && <Timer duration={0} id={null} userId={user.id} />}
+      <RecentSessions sessions={sessions} />
     </div>
   );
 }
