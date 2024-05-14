@@ -25,13 +25,11 @@ export default function RecentSessions({
 
   function formatDate(stringDate: string): string {
     const date = new Date(stringDate);
-    return (
-      date.getHours().toString() +
-      ":" +
-      date.getMinutes().toString() +
-      ":" +
-      date.getSeconds().toString()
-    );
+    let hours: string = date.getHours().toString();
+    let minutes: string = date.getMinutes().toString();
+    if (hours.length < 2) hours = "0" + hours;
+    if (minutes.length < 2) minutes = "0" + minutes;
+    return hours + ":" + minutes;
   }
 
   if (!sessions) {

@@ -7,10 +7,12 @@ export default function Timer({
   duration,
   id,
   userId,
+  name,
 }: {
   duration: number;
   id: string | null;
   userId: string;
+  name: string | null;
 }) {
   const supabase = newBrowserClient();
   const [hours, setHours] = useState<number>(0);
@@ -19,7 +21,9 @@ export default function Timer({
   const [totalSeconds, setTotalSeconds] = useState<number>(duration);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string | null>(id);
-  //
+  const [sessionName, setSessionName] = useState<string>(
+    name ? name : "Session Name"
+  );
 
   async function handleContinue() {
     setIsRunning(!isRunning);
@@ -30,6 +34,7 @@ export default function Timer({
         .insert({
           duration: 0,
           user_id: userId,
+          name: sessionName,
         })
         .select();
 
@@ -43,6 +48,7 @@ export default function Timer({
         .from("sessions")
         .update({
           duration: totalSeconds,
+          name: sessionName,
         })
         .eq("id", sessionId!);
     }
@@ -56,11 +62,14 @@ export default function Timer({
         .update({
           duration: totalSeconds,
           end_at: new Date().toISOString(),
+          name: sessionName,
         })
         .eq("id", sessionId);
     }
     // Reset timer
+    setSessionName("Session Name");
     setTotalSeconds(0);
+    setSessionId(null);
   }
 
   let intervalId: NodeJS.Timeout;
@@ -88,7 +97,14 @@ export default function Timer({
 
   return (
     <div className="bg-white w-8/12 flex flex-col mt-20">
-      <div className="ml-7 mt-7 text-2xl font-semibold">Current Session</div>
+      <div className="ml-7 mt-7 text-2xl font-semibold mb-3">
+        Current Session
+      </div>
+      <input
+        className="w-48 ml-14 border py-1.5 pl-2 text-sm text-zinc-500 rounded-md border-slate-200"
+        value={sessionName}
+        onChange={(e) => setSessionName(e.target.value)}
+      />
       <div className="flex flex-col items-center">
         <div>
           <p className="text-custom-yellow font-extralight font-mono text-7xl">

@@ -50,9 +50,12 @@ export default async function Home() {
           duration={activeSession.duration}
           id={activeSession.id}
           userId={user.id}
+          name={activeSession.name}
         />
       )}
-      {!activeSession && <Timer duration={0} id={null} userId={user.id} />}
+      {!activeSession && (
+        <Timer duration={0} id={null} userId={user.id} name={null} />
+      )}
       <RecentSessions sessions={sessions} />
     </div>
   );
