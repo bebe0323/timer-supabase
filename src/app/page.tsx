@@ -51,17 +51,7 @@ export default async function Home() {
 
   return (
     <div className="w-full flex flex-col items-center">
-      {activeSession && (
-        <Timer
-          duration={activeSession.duration}
-          id={activeSession.id}
-          userId={user.id}
-          name={activeSession.name}
-        />
-      )}
-      {!activeSession && (
-        <Timer duration={0} id={null} userId={user.id} name={null} />
-      )}
+      <Timer activeSession={activeSession} user={user} />
       <TotalDuration duration={totalDuration} />
       <RecentSessions sessions={sessions} />
     </div>

@@ -39,3 +39,18 @@ body {
 .auth-input {
   @apply pl-3 py-3 mb-4 text-sm rounded-lg;
 }
+
+.goal-input {
+  @apply w-10 border border-slate-200 rounded-md pl-1;
+}
+
+/* removing increment/decrement arrow in number input box */
+@layer base {
+  input[type='number']::-webkit-outer-spin-button,
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number'] {
+    -webkit-appearance: none;
+    margin: 0;
+    -moz-appearance: textfield !important;
+  }
+}
