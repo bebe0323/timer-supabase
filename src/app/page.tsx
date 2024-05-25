@@ -4,6 +4,7 @@ import Timer from "@/components/Timer";
 import { newServerClient } from "@/utils/supabase/server";
 import { Tables } from "./lib/databse.types";
 import RecentSessions from "@/components/RecentSessions";
+import TotalDuration from "@/components/TotalDuration";
 
 export default async function Home() {
   const supabase = newServerClient();
@@ -43,6 +44,11 @@ export default async function Home() {
     activeSession = sessions[sessions.length - 1];
   }
 
+  let totalDuration = 0;
+  for (let i = 0; sessions && i < sessions?.length; i++) {
+    totalDuration += sessions[i].duration;
+  }
+
   return (
     <div className="w-full flex flex-col items-center">
       {activeSession && (
@@ -56,6 +62,7 @@ export default async function Home() {
       {!activeSession && (
         <Timer duration={0} id={null} userId={user.id} name={null} />
       )}
+      <TotalDuration duration={totalDuration} />
       <RecentSessions sessions={sessions} />
     </div>
   );
