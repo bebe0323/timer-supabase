@@ -3,7 +3,7 @@
 import { Tables } from "@/app/lib/databse.types";
 import { newBrowserClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { act, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Timer({
   activeSession,
@@ -26,27 +26,28 @@ export default function Timer({
   const [sessionName, setSessionName] = useState<string>(
     activeSession?.name ? activeSession?.name : ""
   );
-  const [goalHour, setGoalHour] = useState<number | null>(null);
-  const [goalMin, setGoalMin] = useState<number | null>(null);
-  const [goalSec, setGoalSec] = useState<number | null>(null);
+  // TODO: value is either 0 or ''
+  const [goalHour, setGoalHour] = useState<number>(0);
+  const [goalMin, setGoalMin] = useState<number>(0);
+  const [goalSec, setGoalSec] = useState<number>(0);
 
   async function handleContinue() {
-    setIsRunning(!isRunning);
-    if (!isRunning && !sessionId) {
-      // creating new row in sessions table
-      const { data, error } = await supabase
-        .from("sessions")
-        .insert({
-          duration: 0,
-          user_id: user.id,
-          name: sessionName,
-        })
-        .select();
+    // setIsRunning(!isRunning);
+    // if (!isRunning && !sessionId) {
+    //   // creating new row in sessions table
+    //   const { data, error } = await supabase
+    //     .from("sessions")
+    //     .insert({
+    //       duration: 0,
+    //       user_id: user.id,
+    //       name: sessionName,
+    //     })
+    //     .select();
 
-      if (data) {
-        setSessionId(data[0].id);
-      }
-    }
+    //   if (data) {
+    //     setSessionId(data[0].id);
+    //   }
+    // }
     if (isRunning) {
       // session paused
       const { data, error } = await supabase
@@ -57,6 +58,7 @@ export default function Timer({
         })
         .eq("id", sessionId!);
     }
+    setIsRunning(!isRunning);
   }
 
   async function handleFinish() {
@@ -74,6 +76,9 @@ export default function Timer({
     // Reset timer
     setSessionName("Session Name");
     setTotalSeconds(0);
+    setGoalHour(0);
+    setGoalMin(0);
+    setGoalSec(0);
     setSessionId(null);
   }
 
@@ -96,13 +101,33 @@ export default function Timer({
 
   let intervalId: NodeJS.Timeout;
 
+  const createSession = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.from("sessions").insert({
+        duration: 0,
+        user_id: user.id,
+        name: sessionName,
+        goal: 0,
+      });
+    } catch (error) {
+      alert(error);
+    }
+  }, []);
+
+  // initial rendering
   useEffect(() => {
+    // create new session if doesn't exist
+    if (!activeSession) {
+      createSession();
+    }
+    // setting goal if it is already set
     if (activeSession && activeSession.goal) {
       // 1hr = 60 mins = 3600 sec
       const goalDuration = activeSession.goal;
-      setHours(goalDuration / 10 / 3600);
-      setMinutes(((goalDuration / 10) % 3600) / 60);
-      setSeconds((goalDuration / 10) % 60);
+      console.log("active session: " + goalDuration);
+      setGoalHour(goalDuration / 10 / 3600);
+      setGoalMin(((goalDuration / 10) % 3600) / 60);
+      setGoalSec((goalDuration / 10) % 60);
     }
   }, []);
 
@@ -136,33 +161,30 @@ export default function Timer({
         onChange={(e) => setSessionName(e.target.value)}
       />
       <label className="ml-9 flex items-center">
-        {/* hrs */}
-        <div className="mr-4 font-semibold text-lg">GOAL:</div>
+        <div className="mr-4 font-semibold text-lg">GOAL</div>
         <input
+          value={goalHour}
           onChange={(e) => setGoalHour(parseInt(e.target.value))}
           className="goal-input"
           placeholder="hrs"
-          type="number"
         />
-        <div className="ml-1 mr-2.5">hrs</div>
-        {/* min */}
+        <div className="mx-0.5">:</div>
         <input
+          value={goalMin}
           onChange={(e) => setGoalMin(parseInt(e.target.value))}
           className="goal-input"
           placeholder="min"
-          type="number"
         />
-        <div className="ml-1 mr-2.5">min</div>
+        <div className="mx-0.5">:</div>
         <input
+          value={goalSec}
           onChange={(e) => setGoalSec(parseInt(e.target.value))}
           className="goal-input"
           placeholder="sec"
-          type="number"
         />
-        <div className="ml-1 mr-2.5">sec</div>
         <button
           onClick={handleGoal}
-          className="auth-button py-1 ml-2.5 text-white bg-black hover:bg-zinc-800 hover:text-gray-100 w-22"
+          className="auth-button ml-2.5 text-white bg-black hover:bg-zinc-800 hover:text-gray-100 w-22"
         >
           set
         </button>

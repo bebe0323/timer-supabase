@@ -32,6 +32,7 @@ export default function RecentSessions({
 }: {
   sessions: Tables<"sessions">[] | null;
 }) {
+  let index = 0;
   if (!sessions) {
     return <div>No sessions</div>;
   }
@@ -40,24 +41,28 @@ export default function RecentSessions({
       <div className="mt-1 text-2xl font-semibold">Today's Sessions</div>
       <div className="flex mt-2">
         <div className="w-10">#</div>
-        <div className="grid grid-cols-5 w-full">
+        <div className="grid grid-cols-6 w-full">
           <div className="col-span-2">Name</div>
           <div className="col-span-1">Duration</div>
+          <div className="col-span-1">Goal</div>
           <div className="col-span-1">Start at</div>
           <div className="col-span-1">End at</div>
         </div>
       </div>
       <hr className="my-1" />
       {sessions.map(
-        (session, index) =>
+        (session) =>
           session &&
           session.end_at && (
             <div className="flex mb-2" key={session.created_at}>
-              <div className="w-10">{index + 1}</div>
-              <div className="grid grid-cols-5 w-full">
-                <div className="truncate pr-3 col-span-2">{session.name}</div>
+              <div className="w-10">{index++}</div>
+              <div className="grid grid-cols-6 w-full">
                 <div className="col-span-1">
                   {formatDuration(session.duration)}
+                </div>
+                <div className="truncate pr-3 col-span-2">{session.name}</div>
+                <div className="col-span-1">
+                  {formatDuration(session.goal || 0)}
                 </div>
                 <div className="col-span-1">
                   {formatDate(session.created_at)}
